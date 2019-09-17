@@ -24,6 +24,17 @@ type User {
   cartid : String
 }
 
+
+type Carttem { 
+  id : String 
+  firstname : String 
+  lastname : String 
+  username : String 
+  cartid : String
+}
+
+
+
 type Subscription {
   cartItemUpdate : Cart
 }
@@ -47,6 +58,7 @@ type Mutation {
 type Query {
   shoes: [Shoe]
   user : [User]
+  db : [Carttem]
 }
 
 `;
@@ -73,16 +85,38 @@ function getUsers() {
   
   const usersData = [
     {
-      firstname: 'Nike X',
-      lastname: 'Nike',
+      firstname: 'Jeremy',
+      lastname: 'Woo',
     },
     {
-      firstname: 'Air Jordan',
-      lastname: 'Nike',
+      firstname: 'Mark',
+      lastname: 'Lee',
     },
     {
-      firstname: 'Air Max',
-      lastname: 'Nike',
+      firstname: 'Jessica',
+      lastname: 'Simpson',
+    },
+  ];
+  
+  return usersData;
+  
+}
+
+
+function getExtraUser() {
+  
+  const usersData = [
+    {
+      firstname: 'Jeremy1',
+      lastname: 'Woo1',
+    },
+    {
+      firstname: 'Mark2',
+      lastname: 'Lee2',
+    },
+    {
+      firstname: 'Jessica2',
+      lastname: 'Simpson2',
     },
   ];
   
@@ -92,13 +126,16 @@ function getUsers() {
 
 const pubsub = new PubSub();
 
-
 // Resolvers define the technique for fetching the types defined in the
 // schema. This resolver retrieves books from the "books" array above.
 const resolvers = {
   Query: {
     shoes: () => shoesData,
-    user : () => getUsers()
+    user : () => getUsers(), 
+    db :  async (_source, _args, { dataSources }) => { 
+  
+      return dataSources.db;
+    }  
   },
   
   Subscription : { 
@@ -128,11 +165,23 @@ const resolvers = {
     
   };
   
-  
-  
+    
   // The ApolloServer constructor requires two parameters: your schema
   // definition and your set of resolvers.
-  const server = new ApolloServer({ typeDefs, resolvers });
+  const server = new ApolloServer(
+    { 
+      typeDefs, 
+      resolvers, 
+      dataSources: () => {
+        
+        return {
+
+        db : getExtraUser()
+        // db: new Users({ users })
+        // console.log('testing')
+      };
+    }
+   });
   
   // The `listen` method launches a web server.
   server.listen().then(({ url }) => {
@@ -157,5 +206,7 @@ const resolvers = {
 //   }
 //  }
  
+
+//  docker run -d -p 27017:27107 -v ~/data:/data/db mongo
 
  
