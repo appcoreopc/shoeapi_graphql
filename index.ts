@@ -2,6 +2,9 @@
 const Product = require('./dataAccess/product');
 const { PubSub, ApolloServer, gql } = require('apollo-server');
 const MongoClient = require('mongodb').MongoClient;
+
+
+
 const url = 'mongodb://localhost:27017';
 
 // Database Name
@@ -155,7 +158,7 @@ const resolvers = {
     shoes: () => shoesData,
     user : () => getUsers(), 
 
-    db :  async (_source, _args, { dataSources }) => { 
+    db :  async (_source : any, _args : any, { dataSources } : any) => { 
 
       let db = await connect();
       let collection = db.collection('product');
@@ -176,7 +179,7 @@ const resolvers = {
   
   Mutation: { 
 
-    updateUserAge : (id, age) => {
+    updateUserAge : (id : number, age: number) => {
       
       pubsub.publish(POST_ADDED, 
         
@@ -220,7 +223,7 @@ const resolvers = {
    });
   
   // The `listen` method launches a web server.
-  server.listen().then(({ url }) => {
+  server.listen().then(({ url } : any) => {
     console.log(`🚀  Server ready at ${url}`);
   });
   
