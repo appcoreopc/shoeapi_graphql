@@ -1,13 +1,36 @@
+
+const Product = require('./dataAccess/product');
 const { PubSub, ApolloServer, gql } = require('apollo-server');
+const MongoClient = require('mongodb').MongoClient;
+const url = 'mongodb://localhost:27017';
+
+// Database Name
+const dbName = 'apptest';
+//const client = new MongoClient(url, { useNewUrlParser : true });
 
 // A schema is a collection of type definitions (hence "typeDefs") 
 // that together define the "shape" of queries that are executed against 
 // your data.
-const typeDefs = gql`
-# Comments in GraphQL strings (such as this one) start with the hash (#) symbol.
 
+const dStore =  null;
+
+async function connect() {
+
+  const client = await MongoClient.connect(url, { useNewUrlParser: true });
+  
+  if (!client) {
+    console.log('error ')
+    return;
+  }
+
+  console.log('successfully connected')
+  return client.db(dbName);
+}
+
+const typeDefs = gql`
 
 type Shoe {
+
   sku : String 
   name : String
   manufacturer: String
@@ -32,8 +55,6 @@ type Carttem {
   username : String 
   cartid : String
 }
-
-
 
 type Subscription {
   cartItemUpdate : Cart
@@ -129,12 +150,21 @@ const pubsub = new PubSub();
 // Resolvers define the technique for fetching the types defined in the
 // schema. This resolver retrieves books from the "books" array above.
 const resolvers = {
+
   Query: {
     shoes: () => shoesData,
     user : () => getUsers(), 
+
     db :  async (_source, _args, { dataSources }) => { 
-  
-      return dataSources.db;
+
+      let db = await connect();
+      let collection = db.collection('product');
+      let data = await collection.find({'id': '1'}).toArray();
+
+      return data;
+
+       
+      //return dataSources.db;
     }  
   },
   
@@ -145,6 +175,7 @@ const resolvers = {
   },
   
   Mutation: { 
+
     updateUserAge : (id, age) => {
       
       pubsub.publish(POST_ADDED, 
@@ -173,14 +204,19 @@ const resolvers = {
       typeDefs, 
       resolvers, 
       dataSources: () => {
-        
+             
         return {
 
-        db : getExtraUser()
-        // db: new Users({ users })
-        // console.log('testing')
+          db : getExtraUser()
+      
       };
-    }
+    },
+      context : () => {
+
+            return {
+
+            }
+          }
    });
   
   // The `listen` method launches a web server.
