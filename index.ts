@@ -1,5 +1,5 @@
 
-//import Product from './dataAccess/product';
+import Product from './dataAccess/product';
 
 import { PubSub, ApolloServer, gql } from 'apollo-server';
 import { MongoClient } from 'mongodb';
@@ -156,10 +156,13 @@ const resolvers = {
     product :  async (_source : any, _args : any, { dataSources } : any)  => { 
 
       const db:any = await databaseConnect();
+
+      let p = new Product(db);
+      p.GetProductAll();
+
       let collection = db.collection('product');
       let data = await collection.find({'id': '1'}).toArray();
-      return data;
-       
+      return data;       
     }  
   },
   
