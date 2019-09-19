@@ -1,8 +1,10 @@
 
-const Product = require('./dataAccess/product');
-const { PubSub, ApolloServer, gql } = require('apollo-server');
-const MongoClient = require('mongodb').MongoClient;
+//import Product from './dataAccess/product';
 
+import { PubSub, ApolloServer, gql } from 'apollo-server';
+import { MongoClient } from 'mongodb';
+
+//const MongoClient = require('mongodb').MongoClient;
 
 
 const url = 'mongodb://localhost:27017';
@@ -15,17 +17,15 @@ const dbName = 'apptest';
 // that together define the "shape" of queries that are executed against 
 // your data.
 
-const dStore =  null;
-
 async function connect() {
-
+  
   const client = await MongoClient.connect(url, { useNewUrlParser: true });
   
   if (!client) {
     console.log('error ')
     return;
   }
-
+  
   console.log('successfully connected')
   return client.db(dbName);
 }
@@ -33,7 +33,7 @@ async function connect() {
 const typeDefs = gql`
 
 type Shoe {
-
+  
   sku : String 
   name : String
   manufacturer: String
@@ -153,20 +153,20 @@ const pubsub = new PubSub();
 // Resolvers define the technique for fetching the types defined in the
 // schema. This resolver retrieves books from the "books" array above.
 const resolvers = {
-
+  
   Query: {
     shoes: () => shoesData,
     user : () => getUsers(), 
-
+    
     db :  async (_source : any, _args : any, { dataSources } : any) => { 
-
-      let db = await connect();
+      
+      const db:any = await connect();
       let collection = db.collection('product');
       let data = await collection.find({'id': '1'}).toArray();
-
+      
       return data;
-
-       
+      
+      
       //return dataSources.db;
     }  
   },
@@ -178,7 +178,7 @@ const resolvers = {
   },
   
   Mutation: { 
-
+    
     updateUserAge : (id : number, age: number) => {
       
       pubsub.publish(POST_ADDED, 
@@ -199,53 +199,42 @@ const resolvers = {
     
   };
   
-    
+  
   // The ApolloServer constructor requires two parameters: your schema
   // definition and your set of resolvers.
   const server = new ApolloServer(
     { 
       typeDefs, 
-      resolvers, 
-      dataSources: () => {
-             
-        return {
-
-          db : getExtraUser()
+       resolvers, 
+      // dataSources : () => ({
+      //   db: getExtraUser()
+      // })
+    });
       
-      };
-    },
-      context : () => {
-
-            return {
-
-            }
-          }
-   });
-  
-  // The `listen` method launches a web server.
-  server.listen().then(({ url } : any) => {
-    console.log(`🚀  Server ready at ${url}`);
-  });
-  
-  
-//   mutation {
-//     updateUserAge(id: 1, age : 10) {
-//        id
-//        firstname
-//     }
-//   }
-  
-//  subscription {
-//    cartItemUpdate  {
-//      id
-    
-//      item {
-//        name
-//     } 
-//   }
-//  }
- 
-
-//  docker run -d -p 27017:27107 -v ~/data:/data/db mongo
-
- 
+      // The `listen` method launches a web server.
+      server.listen().then(({ url } : any) => {
+        console.log(`🚀  Server ready at ${url}`);
+      });
+      
+      
+      //   mutation {
+      //     updateUserAge(id: 1, age : 10) {
+      //        id
+      //        firstname
+      //     }
+      //   }
+      
+      //  subscription {
+      //    cartItemUpdate  {
+      //      id
+      
+      //      item {
+      //        name
+      //     } 
+      //   }
+      //  }
+      
+      
+      //  docker run -d -p 27017:27107 -v ~/data:/data/db mongo
+      
+      
