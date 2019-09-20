@@ -78,74 +78,13 @@ type Query {
 
 const POST_ADDED = 'POST_ADDED';
 
-const shoesData = [
-  {
-    name: 'Nike X',
-    manufacturer: 'Nike',
-  },
-  {
-    name: 'Air Jordan',
-    manufacturer: 'Nike',
-    
-  },
-  {
-    name: 'Air Max',
-    manufacturer: 'Nike',
-  },
-];
-
-function getUsers() {
-  
-  const usersData = [
-    {
-      firstname: 'Jeremy',
-      lastname: 'Woo',
-    },
-    {
-      firstname: 'Mark',
-      lastname: 'Lee',
-    },
-    {
-      firstname: 'Jessica',
-      lastname: 'Simpson',
-    },
-  ];
-  
-  return usersData;
-  
-}
-
-
-function getExtraUser() {
-  
-  const usersData = [
-    {
-      firstname: 'Jeremy1',
-      lastname: 'Woo1',
-    },
-    {
-      firstname: 'Mark2',
-      lastname: 'Lee2',
-    },
-    {
-      firstname: 'Jessica2',
-      lastname: 'Simpson2',
-    },
-  ];
-  
-  return usersData;
-  
-}
-
 const pubsub = new PubSub();
 
 // Resolvers define the technique for fetching the types defined in the
 // schema. This resolver retrieves books from the "books" array above.
 const resolvers = {
 
-  Query: {
-    shoes: () => shoesData,
-    user : () => getUsers(), 
+  Query: {  
     product :  async (_source : any, _args : any, { dataSources } : any)  => { 
 
       const db:any = await databaseConnect();
